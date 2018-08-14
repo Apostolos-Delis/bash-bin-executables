@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ge "1" ]; then
+    total=`cat ~/.bash_history | wc -l`
+    if [ "$1" = '-p' ]; then
+        num_executed=`cat ~/.bash_history | grep "$2" | wc -l`
+        echo -n "0"
+        bc <<< "scale = 3; ($num_executed / $total)"
+    else
+        num_executed=`cat ~/.bash_history | grep "$1" | wc -l`
+        echo "$num_executed"
+    fi
+else
+    echo "use version 1.0"
+    echo "USAGE: use [-p] <COMMAND>"
+    echo "greps history for command usage frequency"
+    echo
+    echo "flags: "
+    echo "      -p: shows a percentage of the commands frequency compared to the entire history"
+    echo
+    echo "Example: use -p ls    <- shows what percantage of the total commands used was ls"
+fi
+
