@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+errormsg(){
+    >&2 echo -e "\e[0;40;31m$1\e[0m"
+}
+
+if [ "$#" -ne "2" ]; then
+    errormsg "ERROR: must have 2 arguements."
+    errormsg "USAGE: swp file1 file2"
+    exit
+fi
+
+if [ ! -e "$1" ]; then
+    errormsg "ERROR: The file \"$1\" does not exist."
+    exit
+elif [ ! -e "$2" ]; then
+    errormsg "ERROR: The file \"$2\" does not exist."
+    exit
+fi
+
+cat "$1" > "TMP_SWP_FILE"
+cat "$2" > "$1"
+cat "TMP_SWP_FILE" > "$2"
+
+rm -f TMP_SWP_FILE
+
