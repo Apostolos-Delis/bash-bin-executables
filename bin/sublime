@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+if [ $# -eq 0 ] || [ $1 = '-h' ] || [ $1 = '--help' ]; then
+    echo "Sublime version 1.1"
+    echo "usage: sublime <FILE>"
+    echo "Usage: open [-e] [-t] [-f] [-W] [-R] [-n] [-g] [-s <partial SDK name>][-b <bundle identifier>] [filenames] [--args arguments]
+Help: Sublime opens files from a shell in sublime for rapid development
+      If the file is in the form of a URL, the file will be opened as a URL.
+"
+    echo "Options:"
+    open 2>&1 | head -n 17 | tail -n 8
+    echo "      -h, --help        Displays this message with all the documentation."
+else
+    open $@ -a "Sublime Text"
+fi
