@@ -13,6 +13,7 @@ fi
 if [ ! -e "$1" ]; then
     errormsg "ERROR: The file \"$1\" does not exist."
     exit
+    
 elif [ ! -e "$2" ]; then
     errormsg "ERROR: The file \"$2\" does not exist."
     exit
