@@ -43,7 +43,7 @@ if [ "$#" -ge "1" ]; then
 
     elif [ "$1" = '-p' ] || [ "$1" = '--percent' ]; then
         total=`cat ~/.bash_history | wc -l`
-        num_executed=`cat ~/.bash_history | grep "$2" | wc -l`
+        num_executed=`cat ~/.bash_history | egrep -c "$2"`
         echo -n "0"
         bc <<< "scale = 3; ($num_executed / $total)"
 
@@ -51,7 +51,7 @@ if [ "$#" -ge "1" ]; then
         print_help
 
     else
-        num_executed=`cat ~/.bash_history | grep "$1" | wc -l`
+        num_executed=`cat ~/.bash_history | egrep -c "$1"`
         echo "$num_executed"
     fi
     
