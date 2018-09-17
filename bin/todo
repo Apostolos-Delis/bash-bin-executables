@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+
+# This file is a part of the Bash-bin-executables project
+# https://github.com/Apostolos-Delis/bash-bin-executables/
+#
+# Copyright (c) 2018 Apostolos Delis
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+##########################################################################
+# Description
+#    o Script that will search all files with code for TODO
+#    o Run ./todo.sh -h for more information
+#
+# Notes
+#    o The --recursive flag might occassionally not work for very deep 
+#    directories, so it is recommended to cd closer to where you believe
+#    TODOs might be located
+#
+##########################################################################
+
+
+if_exists(){ 
+
+    if [ ! -e "$1" ];
+    then
+        >&2 echo "ERROR: $1  doesn't exist!" 
+        exit 
+    fi
+}
+
+grep_todo(){
+    file="$1"
+    binary_check='Binary file (standard input) matches'
+    shift
+    if_exists "$file"
+    output=$(cat "$file" | grep "TODO")
+    if [[ ! -z $output ]] && [ "$output" != "$binary_check" ]
+    then
+        echo "$file"
+        echo =============
+        cat "$file" | grep --color="always" --line-number $@ "TODO"
+    fi
+}
+
+VERSION="1.2"
+
+search=""
+recursive=false
+ls_flags=""
+search_python=false
+
+DIR="."
+
+while test $# -gt 0
+do 
+    case "$1" in 
+        -h|--help)
+            echo "Script to locate all the TODOs in a project directory
+Version: $VERSION
+
+USAGE: ./todo.sh [OPTIONS] 
+
+Options: 
+    -h, --help          Show this help message 
+    -p, --python        Only process python files 
+    -r, --recursive     Process all subdirectories recursively
+    -a, --dot-files     Search through dotfiles as well (similar to ls -A)
+    -d, --dir <DIR>     Search through a given base directory"
+
+            exit 0
+            ;;
+        -p|--python)
+            search_python=true
+            shift 
+            ;;
+        -r|--recursive)
+            recursive=true
+            ls_flags="$ls_flags -R"
+            shift
+            ;;
+        -a|--dot-files)
+            ls_flags="$ls_flags -A"
+            shift
+            ;;
+        -d|--dir)
+            shift 
+            DIR="$1"       
+            shift 
+            ;;
+        --version)
+            echo "todo version $VERSION"
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac 
+done 
+
+
+#Define what files will be searched through 
+if [ $recursive = true ]
+then 
+    if [ $search_python = true ]
+    then 
+        search="$search $DIR/*.py $DIR/**/*.py"
+    else
+        search="$search $DIR/* $DIR/**/*"
+    fi
+elif [ $search_python = true ]
+then 
+    search="$search $DIR/*.py"
+else 
+    search="$search $DIR/*"
+fi
+
+#Define file array
+FILES=$(ls $ls_flags $search 2>/dev/null)
+
+for file in $FILES
+do 
+    #Only allow for files, no symlinks or directories
+    #will be processed
+    if [[ -f $file ]]
+    then 
+        grep_todo $file
+    fi
+done
+    
