@@ -29,9 +29,7 @@
 #    o Run ./todo.sh -h for more information
 #
 # Notes
-#    o The --recursive flag might occassionally not work for very deep 
-#    directories, so it is recommended to cd closer to where you believe
-#    TODOs might be located
+#    o The Do not add a / after the directory name, might cause bugs
 #
 ##########################################################################
 
@@ -182,7 +180,6 @@ if [ "$recursive" = false ] && [ "$DIR" != "" ]
 then 
     search="$DIR$search"
 fi 
-echo "ls $ls_flags $search"
 
 if [ $recursive = true ]
 then 
