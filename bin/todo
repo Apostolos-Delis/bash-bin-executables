@@ -26,10 +26,7 @@
 ##########################################################################
 # Description
 #    o Script that will search all files with code for TODO
-#    o Run ./todo.sh -h for more information
-#
-# Notes
-#    o The Do not add a / after the directory name, might cause bugs
+#    o Run todo.sh for more information
 #
 ##########################################################################
 
@@ -65,6 +62,7 @@ grep_todo(){
         echo "$rel_path$file"
         echo =============
         cat "$file" | grep --color="always" --line-number $@ "TODO"
+		echo
     fi
 }
 
@@ -72,7 +70,7 @@ ls_files(){
     local FILES=$1
     local DIR=$2
     
-    cd $DIR 
+    cd "$DIR" 
     for file in $FILES
     do 
         #Only allow for files, no symlinks or directories
@@ -91,19 +89,19 @@ ls_files_recursively(){
 
     cd "$DIR" 2>/dev/null 
     # This is to prevent recursive bugs
-    local saved_dir=$DIR
+    local saved_dir="$DIR"
 
 
     for file in $FILES
     do
         if [[ -d $file ]]
         then
-            cd $saved_dir 
+            cd "$saved_dir"
             local DIR="$saved_dir$file/"
             cd "$DIR"
             local FILES=$(ls $ls_flags $search 2>/dev/null)
             ls_files_recursively "$FILES" "$DIR"
-            cd $saved_dir
+            cd "$saved_dir"
         elif [[ -f $file ]]
         then
             grep_todo "$file" "$saved_dir" 
@@ -129,10 +127,7 @@ do
         -h|--help)
             echo "Script to locate all the TODOs in a project directory
 Version: $VERSION
-
-
-USAGE: ./todo.sh [OPTIONS] 
-
+USAGE: todo [OPTIONS] 
 Options: 
     -h, --help          Show this help message 
     -p, --python        Only process python files 
