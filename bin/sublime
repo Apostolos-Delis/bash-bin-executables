@@ -23,10 +23,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+VERSION="1.2"
 if [ $# -eq 0 ] || [ $1 = '-h' ] || [ $1 = '--help' ]; then
-    echo "Sublime version 1.1"
-    echo "usage: sublime <FILE>"
-    echo "Usage: open [-e] [-t] [-f] [-W] [-R] [-n] [-g] [-s <partial SDK name>][-b <bundle identifier>] [filenames] [--args arguments]
+    echo "Sublime version $VERSION"
+    echo "Usage: sublime [-W] [-R] [-n] [-g] [-s <partial SDK name>][-b <bundle identifier>] [filenames] [--args arguments]
+
 Help: Sublime opens files from a shell in sublime for rapid development
       If the file is in the form of a URL, the file will be opened as a URL.
 "
