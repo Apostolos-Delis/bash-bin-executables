@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+
+# This file is a part of the Bash-bin-executables project
+# https://github.com/Apostolos-Delis/bash-bin-executables/
+# 
+# Copyright (c) 2018 Apostolos Delis
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
+errormsg(){
+    >&2 echo -e "\e[0;40;91m$1\e[0m"
+}
+
+create_cpp_file(){
+    echo > $1
+    echo "#include <iostream>" >> $1
+    echo >> $1
+    echo >> $1
+    echo "int main(int argc, char** args){" >> $1
+    echo "    return 0;" >> $1
+    echo "}" >> $1
+    echo >> $1
+}
+
+create_c_file(){
+    echo > $1
+    echo "#include <stdio.h>" >> $1
+    echo >> $1
+    echo >> $1
+    echo "int main(int argc, char** args){" >> $1
+    echo "    return 0;" >> $1
+    echo "}" >> $1
+    echo >> $1
+}
+
+create_py_file(){
+    echo "#/usr/bin/env python3" >> $1
+    echo "# coding: utf8" >> $1
+    echo >> $1
+    echo >> $1
+    echo "if __name__ == \"__main__\":" >> $1
+    echo "    pass" >> $1
+    echo >> $1
+}
+
+
+VERSION="1.0"
+
+PYTHON=false
+CPP=false
+C=false
+
+CHMOD=true
+FILE=""
+
+while test $# -gt 0
+do 
+    case "$1" in 
+        -h|--help)
+            echo "Script to create new files for certain programming languages
+Version: $VERSION
+USAGE: cf [OPTIONS] <FILE> 
+
+Options: 
+    --version           Show the version of cf
+    -h, --help          Show this help message 
+    -p, --python        Process FILE with python installations
+    -c, --c-basics      Process FILE with C language basics
+    -C, --cpp           Process FILE with C++ Language basics
+    -x, --non-exec      Don't make the file executable"
+            exit 0
+            ;;
+        -p|--python)
+            if [ $C = true ] || [ $CPP = true ];
+            then
+                errormsg "ERROR: can only have one of -c, -p, or -C options"
+                exit -1
+            fi
+            PYTHON=true
+            shift 
+            ;;
+        -c|--c-basics)
+            if [ $CPP = true ] || [ $PYTHON = true ];
+            then
+                errormsg "ERROR: can only have one of -c, -p, or -C options"
+                exit -1
+            fi
+            C=true
+            shift
+            ;;
+        -C|--cpp)
+            if [ $C = true ] || [ $PYTHON = true ];
+            then
+                errormsg "ERROR: can only have one of -c, -p, or -C options"
+                exit -1
+            fi
+            CPP=true
+            shift 
+            ;;
+        -x|--non-exec)
+            CHMOD=false
+            shift
+            ;;
+        --version)
+            echo "cf version $VERSION"
+            exit 0
+            ;;
+        *)
+            FILE=$1
+            break
+            ;;
+    esac 
+done
+
+touch $FILE
+
+if [ $CPP = true ]
+then
+    create_cpp_file $FILE
+fi
+
+if [ $C = true ]
+then
+    create_c_file $FILE
+fi
+
+if [ $PYTHON = true ]
+then
+    create_py_file $FILE
+fi
+
+if [ $CHMOD = true ]
+then
+    chmod +x $FILE
+fi
