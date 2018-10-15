@@ -32,7 +32,7 @@ print_help(){
     echo "Options: "
     echo "      -p, --percent   shows a percentage of the commands frequency compared to the entire history"
     echo "      -a, --actual    shows the actual matches in the history rather than just the number of matches"
-	echo "      -t, --top       displays the most commonly used commands in history"
+    echo "      -t, --top       displays the most commonly used commands in history"
     echo "      -h, --help      shows the documentation for use"
     echo
     echo "Example: use -p ls    <- shows what percantage of the total commands used was ls"
