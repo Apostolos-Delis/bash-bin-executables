@@ -23,20 +23,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 errormsg(){
-    >&2 echo -e "\e[0;40;31m$1\e[0m"
+    >&2 echo -e "\e[0;40;91m$1\e[0m"
 }
+
+VERSION="1.2"
+
+if [ "$#" -eq "0" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]
+then
+	echo "swp Version $VERSION"
+	echo
+	echo "Swaps the contents of two files"
+	echo
+	echo "USAGE: swp [file1] [file2]"
+	exit 0
+fi
 
 if [ "$#" -ne "2" ]; then
     errormsg "ERROR: must have 2 arguements."
-    errormsg "USAGE: swp file1 file2"
-    exit
+	errormsg "USAGE: swp [file1] [file2]"
+    exit -1
 fi
 
 if [ ! -e "$1" ]; then
     errormsg "ERROR: The file \"$1\" does not exist."
     exit
-    
 elif [ ! -e "$2" ]; then
     errormsg "ERROR: The file \"$2\" does not exist."
     exit
