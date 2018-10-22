@@ -51,7 +51,7 @@ create_c_file(){
 }
 
 create_py_file(){
-    echo "#/usr/bin/env python3" >> $1
+    echo "#!/usr/bin/env python3" >> $1
     echo "# coding: utf8" >> $1
     echo >> $1
     echo >> $1
@@ -60,12 +60,18 @@ create_py_file(){
     echo >> $1
 }
 
+create_bash_file(){
+    echo "#!/usr/bin/env bash" >> $1
+    echo >> $1
+}
 
-VERSION="1.0"
+
+VERSION="1.1"
 
 PYTHON=false
 CPP=false
 C=false
+BASH=false
 
 CHMOD=true
 FILE=""
@@ -84,34 +90,44 @@ Options:
     -p, --python        Process FILE with python installations
     -c, --c-basics      Process FILE with C language basics
     -C, --cpp           Process FILE with C++ Language basics
+    -b, --bash          Process FILE with Bash Language basics
     -x, --non-exec      Don't make the file executable"
             exit 0
             ;;
         -p|--python)
-            if [ $C = true ] || [ $CPP = true ];
+            if [ $C = true ] || [ $CPP = true ] || [ $BASH = true ];
             then
-                errormsg "ERROR: can only have one of -c, -p, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -b, or -C options"
                 exit -1
             fi
             PYTHON=true
             shift 
             ;;
         -c|--c-basics)
-            if [ $CPP = true ] || [ $PYTHON = true ];
+            if [ $CPP = true ] || [ $PYTHON = true ] || [ $BASH = true ];
             then
-                errormsg "ERROR: can only have one of -c, -p, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -b, or -C options"
                 exit -1
             fi
             C=true
             shift
             ;;
         -C|--cpp)
-            if [ $C = true ] || [ $PYTHON = true ];
+            if [ $C = true ] || [ $PYTHON = true ] || [ $BASH = true ];
             then
-                errormsg "ERROR: can only have one of -c, -p, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -b, or -C options"
                 exit -1
             fi
             CPP=true
+            shift 
+            ;;
+        -b|--bash)
+            if [ $C = true ] || [ $PYTHON = true ] || [ $CPP = true ];
+            then
+                errormsg "ERROR: can only have one of -c, -p, -b, or -C options"
+                exit -1
+            fi
+            BASH=true
             shift 
             ;;
         -x|--non-exec)
@@ -144,6 +160,11 @@ fi
 if [ $PYTHON = true ]
 then
     create_py_file $FILE
+fi
+
+if [ $BASH = true ]
+then
+    create_bash_file $FILE
 fi
 
 if [ $CHMOD = true ]
