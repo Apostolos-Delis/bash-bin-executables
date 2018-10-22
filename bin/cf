@@ -145,6 +145,12 @@ Options:
     esac 
 done
 
+if [ -e $FILE ]
+then
+    errormsg "ERROR: $FILE already exists!"
+    exit -1
+fi
+
 touch $FILE
 
 if [ $CPP = true ]
