@@ -65,70 +65,101 @@ create_bash_file(){
     echo >> $1
 }
 
+create_nodejs_file(){
+    echo "#!/usr/bin/env node" > $1
+    echo >> $1
+}
 
-VERSION="1.1"
+help_message(){
+    echo "Script to create new files for certain programming languages
+Version: $VERSION
+USAGE: cf [OPTIONS] <FILE>
+
+Options:
+    --version           Show the version of cf
+    -h, --help          Show this help message
+    -p, --python        Process FILE with python installations
+    -c, --c-basics      Process FILE with C language basics
+    -C, --cpp           Process FILE with C++ language basics
+    -j, --node-js       Process FILE with node.js language basics
+    -b, --bash          Process FILE with Bash language basics
+    -x, --non-exec      Don't make the file executable"
+    exit 0
+}
+
+
+VERSION="1.2"
 
 PYTHON=false
 CPP=false
 C=false
 BASH=false
+NODE_JS=false
+language=false
 
 CHMOD=true
 FILE=""
+
+if [ $# -eq 0 ]
+then
+    help_message
+fi
+
 
 while test $# -gt 0
 do 
     case "$1" in 
         -h|--help)
-            echo "Script to create new files for certain programming languages
-Version: $VERSION
-USAGE: cf [OPTIONS] <FILE> 
-
-Options: 
-    --version           Show the version of cf
-    -h, --help          Show this help message 
-    -p, --python        Process FILE with python installations
-    -c, --c-basics      Process FILE with C language basics
-    -C, --cpp           Process FILE with C++ Language basics
-    -b, --bash          Process FILE with Bash Language basics
-    -x, --non-exec      Don't make the file executable"
-            exit 0
+            help_message
             ;;
         -p|--python)
-            if [ $C = true ] || [ $CPP = true ] || [ $BASH = true ];
+            if [ language = true ]
             then
-                errormsg "ERROR: can only have one of -c, -p, -b, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
                 exit -1
             fi
             PYTHON=true
+            language=true
             shift 
             ;;
         -c|--c-basics)
-            if [ $CPP = true ] || [ $PYTHON = true ] || [ $BASH = true ];
+            if [ language = true ]
             then
-                errormsg "ERROR: can only have one of -c, -p, -b, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
                 exit -1
             fi
             C=true
+            language=true
             shift
             ;;
         -C|--cpp)
-            if [ $C = true ] || [ $PYTHON = true ] || [ $BASH = true ];
+            if [ language = true ]
             then
-                errormsg "ERROR: can only have one of -c, -p, -b, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
                 exit -1
             fi
             CPP=true
+            language=true
             shift 
             ;;
         -b|--bash)
-            if [ $C = true ] || [ $PYTHON = true ] || [ $CPP = true ];
+            if [ language = true ]
             then
-                errormsg "ERROR: can only have one of -c, -p, -b, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
                 exit -1
             fi
             BASH=true
             shift 
+            ;;
+        -j|--node-js)
+            if [ language = true ]
+            then
+                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
+                exit -1
+            fi
+            NODE_JS=true
+            language=true
+            shift
             ;;
         -x|--non-exec)
             CHMOD=false
@@ -171,6 +202,11 @@ fi
 if [ $BASH = true ]
 then
     create_bash_file $FILE
+fi
+
+if [ $NODE_JS = true ]
+then
+    create_nodejs_file $FILE
 fi
 
 if [ $CHMOD = true ]
