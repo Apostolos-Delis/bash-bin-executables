@@ -170,46 +170,50 @@ do
             exit 0
             ;;
         *)
-            FILE=$1
+            FILES=$@
             break
             ;;
     esac 
 done
 
-if [ -e $FILE ]
-then
-    errormsg "ERROR: $FILE already exists!"
-    exit -1
-fi
 
-touch $FILE
+for FILE in $FILES
+do
+    if [ -e $FILE ]
+    then
+        errormsg "ERROR: $FILE already exists!"
+        exit -1
+    fi
 
-if [ $CPP = true ]
-then
-    create_cpp_file $FILE
-fi
+    touch $FILE
 
-if [ $C = true ]
-then
-    create_c_file $FILE
-fi
+    if [ $CPP = true ]
+    then
+        create_cpp_file $FILE
+    fi
 
-if [ $PYTHON = true ]
-then
-    create_py_file $FILE
-fi
+    if [ $C = true ]
+    then
+        create_c_file $FILE
+    fi
 
-if [ $BASH = true ]
-then
-    create_bash_file $FILE
-fi
+    if [ $PYTHON = true ]
+    then
+        create_py_file $FILE
+    fi
 
-if [ $NODE_JS = true ]
-then
-    create_nodejs_file $FILE
-fi
+    if [ $BASH = true ]
+    then
+        create_bash_file $FILE
+    fi
 
-if [ $CHMOD = true ]
-then
-    chmod +x $FILE
-fi
+    if [ $NODE_JS = true ]
+    then
+        create_nodejs_file $FILE
+    fi
+
+    if [ $CHMOD = true ]
+    then
+        chmod +x $FILE
+    fi
+done
