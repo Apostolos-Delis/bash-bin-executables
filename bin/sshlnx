@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This was just a script to automatically log me into my school's linux server
+
+
 if [ "$#" -ge 1 ]
 then
 	server=$1
