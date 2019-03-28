@@ -1,0 +1,84 @@
+#!/usr/bin/env node
+
+let sys = require('util');
+let exec = require('child_process').exec;
+            
+function puts(error, stdout, stderr) { sys.puts(stdout) }
+exec(".extra/color-help", function(err, stdout, stderr) {
+              console.log(stdout);
+});
+
+
+let colors = {
+    "black": "\033[0;49;30m",
+    "red": "\033[0;49;31m",
+    "green": "\033[0;49;32m",
+    "yellow": "\033[0;49;33m",
+    "blue": "\033[0;49;34m",
+    "magenta": "\033[0;49;35m",
+    "cyan": "\033[0;49;36m",
+    "light-gray": "\033[0;49;37m",
+    "dark-gray": "\033[0;49;90m",
+    "light-red": "\033[0;49;91m",
+    "light-green": "\033[0;49;92m",
+    "light-yellow": "\033[0;49;93m",
+    "light-blue": "\033[0;49;94m",
+    "light-magenta": "\033[0;49;95m",
+    "light-cyan": "\033[0;49;96m",
+    "white": "\033[0;49;97m",
+    "clear": "\033[0m",
+};
+
+let randomProperty = function pickRandomProperty(obj) {
+    let result;
+    let count = 0;
+    for (let prop in obj)
+        if (Math.random() < 1/++count)
+           result = prop;
+    return result;
+}
+
+function main(){
+    let verbose = true;
+    process.argv.forEach(function (val, index, array) {
+        val = val.toLowerCase();
+
+        if (val === "--help" || val === "-h"){
+            console.log("Colors turns the text of terminal to the color that you want");
+            console.log("This only works for terminal sessions that do not set the color");
+            console.log("for the $Prompt$ in terminal, check your ~/.bashrc for this.");
+            console.log("\nUSAGE: color [OPTIONS] <COLOR>");
+            console.log("\nOptions:\n\t-s,--silent          Doesn't output anything");
+            console.log("\t-h,--help            Show this help message\n");
+            console.log("Colors: " + JSON.stringify(Object.keys(colors), null, 2));
+            console.log("\nIf no options are passed, all possibilities are displayed");
+            process.exit(0);
+        }
+        else if (val === "-s" || val === "--silent"){
+            verbose = false;
+        }
+        else if (val === "random"){
+            val = randomProperty(colors);
+            if (verbose){
+                console.log(colors[val] + "-----" + val + "-----");
+            } else {
+                process.stdout.write(colors[val]);
+            }
+            process.exit(0);
+        }
+        if (colors[val] !== undefined){
+            if (verbose){
+                console.log(colors[val] + "-----" + val + "-----");
+            } else {
+                process.stdout.write(colors[val]);
+            }
+            process.exit(0);
+        }
+        else if (index >= 3){
+            console.error("'" + val + "' is an invalid arguement for color")
+            process.exit(1);
+        }
+    });
+}
+
+main();

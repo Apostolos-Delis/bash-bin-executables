@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+
+
+
+function main(){
+    let version = "v1.0"
+    process.argv.forEach(function (val, index, array) {
+        if (val.toLowerCase() == "--help" || val.toLowerCase() == "-h"){
+            console.log("sqrt (√) " + version);
+            console.log("Author: Apostolos Delis")
+            console.log("requirements: node.js\n")
+            console.log("USAGE: √ <NUMBER>");
+            process.exit(0);
+        }
+
+        if (index == 2){
+            console.log(Math.sqrt(Number(val)));
+            process.exit(0);
+        }
+    });
+}
+
+main();

@@ -59,7 +59,7 @@ grep_todo(){
     then
         #Make path relative
         rel_path=${DIR#"$RELATIVE_PATH/"}
-        echo "$rel_path$file"
+        echo -e "\e[1;32m$rel_path$file\e[0m"
         echo =============
         cat "$file" | grep --color="always" --line-number $@ "TODO"
 		echo
@@ -191,3 +191,4 @@ else
     FILES=$(ls $ls_flags $search 2>/dev/null)
     ls_files "$FILES" "$PWD/$DIR"
 fi 
+

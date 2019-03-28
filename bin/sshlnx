@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ge 1 ]
+then
+	server=$1
+	shift
+    #ssh $@ -t "apostolo@lnxsrv0$server.seas.ucla.edu" 'source ~/.bashrc; exec bash -l'
+    ssh $@ "apostolo@lnxsrv0$server.seas.ucla.edu" -o LocalCommand="source ~/.bashrc"
+else
+    ssh $@ "apostolo@lnxsrv07.seas.ucla.edu" -o LocalCommand="source ~/.bashrc"
+fi
+
