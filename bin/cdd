@@ -15,7 +15,7 @@ JSON_FILE = f"{HOME}/.cdd"
 
 class Parser:
     """
-    class for parsing arguments
+    class for parsing arguments and running cdd commands
     """
     def __init__(self):
 
@@ -38,8 +38,14 @@ class Parser:
         self._load_data()
 
         if "--all" in sys.argv or "-a" in sys.argv:
-            for key, value in self._data.items():
-                print(f"{key}   ===> {value}")
+            if len(self._data) == 0:
+                exit(0)
+
+            print("\033[4;49;39m {:<8} {:<15} {:<10}\033[0m".format(
+                'Key', 'Name','Directory'))
+            for index, values in enumerate(self._data.items()):
+                nickname, directory = values
+                print("{:<8} {:<15} {:<10}".format(index+1, nickname, directory))
             exit(0)
         
         if len(sys.argv) == 1:
@@ -53,12 +59,11 @@ class Parser:
         elif args.subcommand in self._data.keys():
             cd = f"cd '{self._data[args.subcommand]}'\nexec bash"
             os.system(cd)
-
-
-    def __del__(self):
-        """Write all the data to the json file again"""
-        with open(JSON_FILE, 'w') as outfile:
-            json.dump(self._data, outfile)
+        else:
+            print(f"Error: {args.subcommand} is not a working nickname!",
+                    file=sys.stderr)
+            print(f"Run 'cdd --all' to see all current working entries.",
+                    file=sys.stderr)
 
 
     def _load_data(self): 
@@ -74,7 +79,15 @@ class Parser:
             self._data = dict(json.load(read_file))
         except json.decoder.JSONDecodeError:
             self._data = dict()
-            pass
+
+
+    def _update_data(self): 
+        """
+        Updated .cdd with current data
+        """
+        with open(JSON_FILE, 'w') as outfile:
+            json.dump(self._data, outfile, indent=2)
+
  
     def rm(self):
         """deletes the entry from the current table"""
@@ -84,6 +97,9 @@ class Parser:
 
         if sys.argv[2] in self._data.keys():
             del self._data[sys.argv[2]]
+
+        # Write all the data to the json file again
+        self._update_data()
 
 
     def add(self): 
@@ -104,6 +120,9 @@ class Parser:
             exit(1)
 
         self._data[nickname] = directory
+        
+        # Write all the data to the json file again
+        self._update_data()
 
 
 if __name__ == "__main__":
