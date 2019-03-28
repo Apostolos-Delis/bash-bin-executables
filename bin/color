@@ -73,6 +73,7 @@ function main(){
             console.log("for the $Prompt$ in terminal, check your ~/.bashrc for this.");
             console.log("\nUSAGE: color [OPTIONS] <COLOR>");
             console.log("\nOptions:\n\t-s,--silent          Doesn't output anything");
+            console.log("\t-a,--all             Show all possible ansi code combinations");
             console.log("\t-h,--help            Show this help message\n");
             console.log("Colors: " + JSON.stringify(Object.keys(colors), null, 2));
             console.log("\nIf no options are passed, all possibilities are displayed");
@@ -80,6 +81,12 @@ function main(){
         }
         else if (val === "-s" || val === "--silent"){
             verbose = false;
+        }
+        else if (val == "--all" || val == "-a") {
+            function puts(error, stdout, stderr) { sys.puts(stdout) }
+            exec(".extra/color-help --all", function(err, stdout, stderr) {
+                        console.log(stdout);
+            });
         }
         else if (val === "random"){
             val = randomProperty(colors);
