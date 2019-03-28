@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+# encoding: UTF-8
+
+import os
+import sys
+import argparse 
+import json
+
+
+USERNAME = os.getenv("USER")
+HOME = os.path.expanduser('~'+USERNAME)
+
+JSON_FILE = f"{HOME}/.cdd"
+
+
+class Parser:
+    """
+    class for parsing arguments
+    """
+    def __init__(self):
+
+        desc = """custom direct directory v1.0"""
+        usage_msg = """cdd [subcommand] [options] <DIRECTORY>
+
+    Allows you to define shortcuts for various directories.
+    for quick and easy navigation in your file system"""
+
+        subcommand_help = """
+    List of subcommands: add, delete, or a directory entry to cd to"""
+        parser = argparse.ArgumentParser(description=desc, usage=usage_msg)
+
+        parser.add_argument('--version', action='version', version='cdd v1.0')
+        parser.add_argument("-a", "--all", action="store_true", default=False,
+                help="Displays all current direct entries", dest="all")
+        parser.add_argument('subcommand', metavar='command', type=str,
+                help=subcommand_help)
+
+        self._load_data()
+
+        if "--all" in sys.argv or "-a" in sys.argv:
+            for key, value in self._data.items():
+                print(f"{key}   ===> {value}")
+            exit(0)
+        
+        if len(sys.argv) == 1:
+            parser.print_help()
+            exit(0)
+
+        args = parser.parse_args(sys.argv[1:2])
+
+        if hasattr(self, args.subcommand):
+            getattr(self,args.subcommand)()
+        elif args.subcommand in self._data.keys():
+            cd = f"cd '{self._data[args.subcommand]}'\nexec bash"
+            os.system(cd)
+
+
+    def __del__(self):
+        """Write all the data to the json file again"""
+        with open(JSON_FILE, 'w') as outfile:
+            json.dump(self._data, outfile)
+
+
+    def _load_data(self): 
+        """Description: Loads data from json into dictionary"""
+
+        if not os.path.isfile(JSON_FILE):
+            f = open(JSON_FILE, "w+")
+            f.close()
+            exit(0)
+        
+        read_file = open(JSON_FILE, "r")
+        try:
+            self._data = dict(json.load(read_file))
+        except json.decoder.JSONDecodeError:
+            self._data = dict()
+            pass
+ 
+    def rm(self):
+        """deletes the entry from the current table"""
+        if len(sys.argv) != 3:
+            print("Error: add format is cdd add NICKNAME DIRECTORY",
+                    file=sys.stderr)
+
+        if sys.argv[2] in self._data.keys():
+            del self._data[sys.argv[2]]
+
+
+    def add(self): 
+        """
+        Description: Brief Description
+        :param
+        """
+        if len(sys.argv) != 4:
+            print("Error: add format is cdd add NICKNAME DIRECTORY",
+                    file=sys.stderr)
+
+        nickname = sys.argv[2]
+        directory = sys.argv[3]
+        
+        if not os.path.isdir(directory):
+            print(f"Error: {directory} is not a valid directory!",
+                    file=sys.stderr)
+            exit(1)
+
+        self._data[nickname] = directory
+
+
+if __name__ == "__main__":
+    Parser()
