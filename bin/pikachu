@@ -7,6 +7,7 @@ import time
 import os
 from optparse import OptionParser
 
+
 """
 BLACK = Color("BLACK", "30m", "40;")
 RED = Color("RED", "31m", "41;")
@@ -41,10 +42,11 @@ NOCOLOR = "\033[0m"
 YELLOW_BLINK = "\033[5;103;33m"
 GRAY_BLINK = "\033[5;49;90m"
 
+FILE_NAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 
+        ".extra", "pikachu.txt")
+
 
 def main():
-
-    start = time.time()
     version_msg = "pikachu v1.1"
     usage_msg = """pikachu [OPTIONS]
   
@@ -62,7 +64,7 @@ def main():
     
     options, args = parser.parse_args(sys.argv[1:])
         
-    f = open(".extra/pikachu.txt", 'r')
+    f = open(FILE_NAME, 'r')
     text = f.read()
     f.close()
     if options.dark:
