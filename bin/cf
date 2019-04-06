@@ -33,7 +33,7 @@ create_cpp_file(){
     echo "#include <iostream>" >> $1
     echo >> $1
     echo >> $1
-    echo "int main(int argc, char** args){" >> $1
+    echo "int main(int argc, std::string args[]) {" >> $1
     echo "    return 0;" >> $1
     echo "}" >> $1
     echo >> $1
