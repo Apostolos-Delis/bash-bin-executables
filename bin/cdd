@@ -3,7 +3,7 @@
 
 import os
 import sys
-import argparse 
+import argparse
 import json
 
 
@@ -31,9 +31,10 @@ class Parser:
 
         parser.add_argument('--version', action='version', version='cdd v1.0')
         parser.add_argument("-a", "--all", action="store_true", default=False,
-                help="Displays all current direct entries", dest="all")
+                            help="Displays all current direct entries",
+                            dest="all")
         parser.add_argument('subcommand', metavar='command', type=str,
-                help=subcommand_help)
+                            help=subcommand_help)
 
         self._load_data()
 
@@ -42,12 +43,12 @@ class Parser:
                 exit(0)
 
             print("\033[4;49;39m{:<8} {:<15} {:<10}\033[0m".format(
-                'Index', 'Name','Directory'))
+                'Index', 'Name', 'Directory'))
             for index, values in enumerate(self._data.items()):
                 name, directory = values
                 print("{:<8} {:<15} {:<10}".format(index+1, name, directory))
             exit(0)
-        
+
         if len(sys.argv) == 1:
             parser.print_help()
             exit(0)
@@ -55,75 +56,73 @@ class Parser:
         args = parser.parse_args(sys.argv[1:2])
 
         if hasattr(self, args.subcommand):
-            getattr(self,args.subcommand)()
+            getattr(self, args.subcommand)()
         elif args.subcommand in self._data.keys():
             if not os.path.isdir(self._data[args.subcommand]):
-                print(f"Error: {args.subcommand} no longer points to a valid directory!",
-                        file=sys.stderr)
+                print(f"Error: {args.subcommand} no",
+                      file=sys.stderr, end='')
+                print("longer points to a valid directory!",
+                      file=sys.stderr)
                 exit(1)
             cd = f"cd '{self._data[args.subcommand]}'\nexec bash"
             os.system(cd)
         else:
             print(f"Error: {args.subcommand} is not a working nickname!",
-                    file=sys.stderr)
+                  file=sys.stderr)
             print(f"Run 'cdd --all' to see all current working entries.",
-                    file=sys.stderr)
+                  file=sys.stderr)
 
-
-    def _load_data(self): 
+    def _load_data(self):
         """Description: Loads data from json into dictionary"""
 
         if not os.path.isfile(JSON_FILE):
             f = open(JSON_FILE, "w+")
             f.close()
             exit(0)
-        
+
         read_file = open(JSON_FILE, "r")
         try:
             self._data = dict(json.load(read_file))
         except json.decoder.JSONDecodeError:
             self._data = dict()
 
-
-    def _update_data(self): 
+    def _update_data(self):
         """
         Updated .cdd with current data
         """
         with open(JSON_FILE, 'w') as outfile:
             json.dump(self._data, outfile, indent=2)
 
- 
     def rm(self):
         """deletes the entry from the current table"""
         if len(sys.argv) != 3:
             print("Error: add format is cdd add NICKNAME DIRECTORY",
-                    file=sys.stderr)
+                  file=sys.stderr)
 
         if sys.argv[2] in self._data.keys():
             del self._data[sys.argv[2]]
             # Write all the data to the json file again
             self._update_data()
 
-
-    def add(self): 
+    def add(self):
         """
         Description: Brief Description
         :param
         """
         if len(sys.argv) != 4:
             print("Error: add format is cdd add NAME DIRECTORY",
-                    file=sys.stderr)
+                  file=sys.stderr)
 
         name = sys.argv[2]
         directory = sys.argv[3]
-        
+
         if not os.path.isdir(directory):
             print(f"Error: {directory} is not a valid directory!",
-                    file=sys.stderr)
+                  file=sys.stderr)
             exit(1)
 
         self._data[name] = directory
-        
+
         # Write all the data to the json file again
         self._update_data()
 

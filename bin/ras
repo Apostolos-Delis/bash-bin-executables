@@ -19,28 +19,31 @@ def gen_password(size=8, letters=False, digits=False, new_line=False):
     elif digits:
         possibilities = string.digits
     else:
-        possibilities = string.ascii_uppercase + string.ascii_lowercase + string.digits
+        possibilities = string.ascii_uppercase + string.ascii_lowercase + \
+            string.digits
     if new_line:
-        return '\n'.join(random.choice(possibilities) for _ in range(size)) 
+        return '\n'.join(random.choice(possibilities) for _ in range(size))
     else:
-        return ''.join(random.choice(possibilities) for _ in range(size)) 
+        return ''.join(random.choice(possibilities) for _ in range(size))
 
 
-def hasNumbers(inputString: str)->bool:
+def hasNumbers(inputString: str) -> bool:
     return any(char.isdigit() for char in inputString)
 
-def charsUnique(inputString: str)->bool:
+
+def charsUnique(inputString: str) -> bool:
     occurences = Counter(inputString.replace('\n', ''))
     for occurence in occurences.values():
         if occurence > 1:
             return False
     return True
 
+
 def main():
     start = time.time()
     version_msg = "random ascii string 2.2"
     usage_msg = """ras [OPTIONS]
-  
+
     Output randomly generated from ascii vals."""
     parser = OptionParser(version=version_msg,
                           usage=usage_msg)
@@ -76,7 +79,8 @@ def main():
             print("\nVersion:", version_msg)
             print("""\033[0m\nFlags:
       -n/--head-count:  Print n random ascii values
-      -c/--count-tries: Print number of tries the generator needed to find a valid passcode
+      -c/--count-tries: Print number of tries the generator needed
+                        to find a valid passcode
       -a/--letters:     Generate with only letters
       -d/--digits:      Generate with only digits
       -m/--manual:      Display flags and uses
@@ -87,12 +91,12 @@ def main():
         except IOError as errno:
             parser.error("\033[0;40;31mOption Error: {}\033[0m".format(errno))
         sys.exit(0)
-    
+
     if len(args) != 0:
         parser.error("Wrong number of operands")
     elif options.digits and options.letters:
         parser.error("Cannot have the -d flag with the -a flag")
-    
+
     if options.digits:
         limit = 1
     elif options.letters:
@@ -106,10 +110,10 @@ def main():
                     parser.error("""Cannot have more than 10 characters if
 the -d and -u flags are selected""")
                 elif options.digits and options.count > 52:
-                    parser.error("""Cannot have more than 52 characters if 
+                    parser.error("""Cannot have more than 52 characters if
 the -a and -u flags are selected""")
                 elif options.count > 61:
-                    parser.error("""Cannot have more than 61 characters if 
+                    parser.error("""Cannot have more than 61 characters if
 the -u flag is selected""")
             num_chars = options.count
         elif options.count == -1:
@@ -124,22 +128,23 @@ In general, with the following flags you need:
             sys.exit(0)
     except IOError as errno:
         parser.error("\033[0;40;31mI/O error: {}\033[0m".format(errno))
-    
+
     valid_password = False
     num_tries = 0
     while not valid_password:
-        password = gen_password(num_chars, options.letters, options.digits, options.newline)
+        password = gen_password(num_chars, options.letters,
+                                options.digits, options.newline)
         num_tries += 1
         if options.unique:
             if options.digits and charsUnique(password):
                 valid_password = True
             elif password.lower() != password and password.upper() != password and (options.letters or hasNumbers(password)) and charsUnique(password):
                 valid_password = True
-        elif options.digits: 
+        elif options.digits:
             valid_password = True
         elif password.lower() != password and password.upper() != password and (options.letters or hasNumbers(password)):
             valid_password = True
-   
+
     end = time.time()
     try:
         print(password)
