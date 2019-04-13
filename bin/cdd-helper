@@ -34,6 +34,9 @@ class Parser:
         parser.add_argument("-a", "--all", action="store_true", default=False,
                             help="Displays all current direct entries",
                             dest="all")
+        parser.add_argument("-p", action="store_true", default=False,
+                            help="This is deprecated",
+                            dest="print_dir")
         parser.add_argument('subcommand', metavar='command', type=str,
                             help=subcommand_help)
 
@@ -54,6 +57,7 @@ class Parser:
             parser.print_help()
             exit(0)
 
+        # print(sys.argv)
         args = parser.parse_args(sys.argv[1:2])
 
         if hasattr(self, args.subcommand):
@@ -65,6 +69,9 @@ class Parser:
                 print("longer points to a valid directory!",
                       file=sys.stderr)
                 exit(1)
+            if "-p" in sys.argv:
+                print(self._data[args.subcommand])
+                exit(0)
             cd = f"cd '{self._data[args.subcommand]}'\nexec {TERMINAL}"
             os.system(cd)
         else:

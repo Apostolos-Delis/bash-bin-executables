@@ -1,4 +1,4 @@
-#!/bin/zsh -i
+#!/usr/bin/env bash -i
 
 # This file is a part of the Bash-bin-executables project
 # https://github.com/Apostolos-Delis/bash-bin-executables/
@@ -37,12 +37,6 @@ print_help(){
     echo "Example: use -p ls    <- shows what percantage of the total commands used was ls"
 }
 
-# Enable history
-if [ -n "$ZSH_VERSION" ]; then
-
-elif [ -n "$BASH_VERSION" ]; then
-    set -o history
-fi
 
 # Needs C locale to run --top
 export LC_ALL="C"
