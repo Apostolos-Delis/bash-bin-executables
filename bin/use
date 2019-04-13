@@ -1,4 +1,4 @@
-#!/bin/bash -i
+#!/bin/zsh -i
 
 # This file is a part of the Bash-bin-executables project
 # https://github.com/Apostolos-Delis/bash-bin-executables/
@@ -38,7 +38,11 @@ print_help(){
 }
 
 # Enable history
-set -o history 
+if [ -n "$ZSH_VERSION" ]; then
+
+elif [ -n "$BASH_VERSION" ]; then
+    set -o history
+fi
 
 # Needs C locale to run --top
 export LC_ALL="C"
@@ -56,7 +60,7 @@ if [ "$#" -ge "1" ]; then
 
     elif [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
         print_help
-	
+
 	elif [ "$1" = '--top' ] || [ "$1" = '-t' ]; then
         shift
 		history | awk 'BEGIN {FS="[ \t]+|\\|"} {print $3}' | sort | uniq -c | sort -nr | head $@

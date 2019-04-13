@@ -6,6 +6,7 @@ import sys
 import argparse
 import json
 
+TERMINAL = "zsh"
 
 USERNAME = os.getenv("USER")
 HOME = os.path.expanduser('~'+USERNAME)
@@ -64,7 +65,7 @@ class Parser:
                 print("longer points to a valid directory!",
                       file=sys.stderr)
                 exit(1)
-            cd = f"cd '{self._data[args.subcommand]}'\nexec bash"
+            cd = f"cd '{self._data[args.subcommand]}'\nexec {TERMINAL}"
             os.system(cd)
         else:
             print(f"Error: {args.subcommand} is not a working nickname!",

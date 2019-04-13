@@ -57,7 +57,6 @@ create_py_file(){
     echo >> $1
     echo "if __name__ == \"__main__\":" >> $1
     echo "    pass" >> $1
-    echo >> $1
 }
 
 create_bash_file(){
