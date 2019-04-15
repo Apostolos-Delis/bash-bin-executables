@@ -54,6 +54,10 @@ create_py_file(){
     echo "#!/usr/bin/env python3" >> $1
     echo "# coding: utf8" >> $1
     echo >> $1
+    echo '"""' >> $1
+    echo >> $1
+    echo '"""' >> $1
+    echo >> $1
     echo >> $1
     echo "if __name__ == \"__main__\":" >> $1
     echo "    pass" >> $1
