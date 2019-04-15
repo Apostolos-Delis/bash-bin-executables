@@ -55,7 +55,10 @@ create_py_file(){
     echo "# coding: utf8" >> $1
     echo >> $1
     echo '"""' >> $1
+    echo "$1" >> $1
+    echo "Date: `date +'%m-%d-%Y'`" >> $1
     echo >> $1
+    echo "Description:" >> $1
     echo '"""' >> $1
     echo >> $1
     echo >> $1
