@@ -1,40 +1,17 @@
 #!/usr/bin/env python3
 # encoding: UTF-8
 
+"""
+This was mostly a fun project I did when I was bored in class one day,
+Don't take this too seriously.
+Color is done using ansi color codes
+"""
+
 
 import sys
-import time
 import os
 from optparse import OptionParser
 
-
-"""
-BLACK = Color("BLACK", "30m", "40;")
-RED = Color("RED", "31m", "41;")
-GREEN = Color("GREEN", "32m", "42;")
-YELLOW = Color("YELLOW", "33m", "43;")
-BLUE = Color("BLUE", "34m", "44;")
-PURPLE = Color("PURPLE", "35m", "45;")
-CYAN = Color("CYAN", "36m", "46;")
-LIGHT_GRAY = Color("LIGHT_GRAY", "37m", "47;")
-DARK_GRAY = Color("DARK_GRAY", "90m", "100;")
-LIGHT_RED = Color("LIGHT_RED", "91m", "101;")
-LIGHT_GREEN = Color("LIGHT_GREEN", "92m", "102;")
-LIGHT_YELLOW = Color("LIGHT_YELLOW", "93m", "103;")
-LIGHT_BLUE = Color("LIGHT_BLUE", "94m", "104;")
-LIGHT_MAGENTA = Color("LIGHT_MAGENTA", "95m", "105;")
-LIGHT_CYAN = Color("LIGHT_CYAN", "96m", "106;")
-WHITE = Color("WHITE", "97m", "107;")
-NOCOLOR = Color("NOCOLOR", "39m", "49;")
-
-styles = {
-    "NO STYLE": "0;",
-    "BOLD": "1;",
-    "FADED": "2;",
-    "UNDERLINED": "4;",
-    "BLINKING": "5;",
-}
-"""
 
 YELLOW = "\033[0;103;33m"
 NOCOLOR = "\033[0m"
@@ -42,16 +19,21 @@ NOCOLOR = "\033[0m"
 YELLOW_BLINK = "\033[5;103;33m"
 GRAY_BLINK = "\033[5;49;90m"
 
-FILE_NAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 
-        ".extra", "pikachu.txt")
+FILE_NAME = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                         ".extra", "pikachu.txt")
 
 
 def main():
+    """
+    Parses arguments, prints the pikachu ascii art file, or
+    displays the help message
+    """
+
     version_msg = "pikachu v1.1"
     usage_msg = """pikachu [OPTIONS]
-  
-    Prints Pikachu Meme, 
-    Note: it may require a terminal that is correctly sized""" 
+
+    Prints Pikachu Meme,
+    Note: it may require a terminal that is correctly sized"""
     parser = OptionParser(version=version_msg,
                           usage=usage_msg)
     parser.add_option("-d", "--dark",
@@ -60,13 +42,13 @@ def main():
     parser.add_option("-b", "--blink",
                       action="store_true", dest="blink", default=False,
                       help="make the pikachu animated through blinking")
-    options, args = parser.parse_args(sys.argv[1:])
-    
-    options, args = parser.parse_args(sys.argv[1:])
-        
-    f = open(FILE_NAME, 'r')
-    text = f.read()
-    f.close()
+    options, _ = parser.parse_args(sys.argv[1:])
+
+    options, _ = parser.parse_args(sys.argv[1:])
+
+    pikachu_file = open(FILE_NAME, 'r')
+    text = pikachu_file.read()
+    pikachu_file.close()
     if options.dark:
         if options.blink:
             replacement = GRAY_BLINK + "%" + NOCOLOR
@@ -83,6 +65,6 @@ def main():
         text = text.replace("%", replacement)
         print(text)
 
+
 if __name__ == "__main__":
     main()
-
