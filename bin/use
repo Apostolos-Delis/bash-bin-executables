@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -i 
+#!/usr/bin/env zsh -i
 
 
 # This file is a part of the Bash-bin-executables project
