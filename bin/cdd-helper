@@ -65,7 +65,7 @@ class Parser:
         elif args.subcommand in self._data.keys():
             if not os.path.isdir(self._data[args.subcommand]):
                 print(f"Error: {args.subcommand} no",
-                      file=sys.stderr, end='')
+                      file=sys.stderr, end=' ')
                 print("longer points to a valid directory!",
                       file=sys.stderr)
                 exit(1)
