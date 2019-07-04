@@ -25,8 +25,8 @@
 # SOFTWARE.
 
 print_help(){
-    echo "use version 1.0"
-    echo "USAGE: use [OPTIONS] <COMMAND>"
+    echo "use version 1.1"
+    echo "USAGE: use [OPTION] <COMMAND>"
     echo "greps history for command usage frequency"
     echo
     echo "Options: "
@@ -34,6 +34,9 @@ print_help(){
     echo "      -a, --actual    shows the actual matches in the history rather than just the number of matches"
     echo "      -t, --top       displays the most commonly used commands in history"
     echo "      -h, --help      shows the documentation for use"
+    echo 
+    echo "Note: can only specify one of these flags at a time, but can also specify after a command, other"
+    echo "grep flags, for example use --top -n 30, will show the top 30 most used commands"
     echo
     echo "Example: use -p ls    <- shows what percantage of the total commands used was ls"
 }
@@ -45,12 +48,12 @@ export LC_ALL="C"
 if [ "$#" -ge "1" ]; then
     if [ $1 = '-a' ] || [ $1 = '--actual' ]; then
         shift
-        history | awk '{$1=""}1' | awk '{$1=$1}1' | grep "$@"
+        history | awk '{$1=""}1' | awk '{$1=$1}1' | grep -e "$@"
 
     elif [ "$1" = '-p' ] || [ "$1" = '--percent' ]; then
         total=`history | wc -l`
         shift
-        num_executed=`history | awk '{$1=""}1' | awk '{$1=$1}1' | egrep -c "$@"`
+        num_executed=`history | awk '{$1=""}1' | awk '{$1=$1}1' | grep -e -c "$@"`
         bc <<< "scale = 3; ($num_executed / $total)"
 
     elif [ "$1" = '-h' ] || [ "$1" = '--help' ]; then

@@ -1,2 +1,6 @@
 **/tmp/
 **/temp.*
+**/.DS_Store
+
+# Other executables
+tm
