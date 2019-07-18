@@ -59,8 +59,7 @@ grep_todo(){
     then
         #Make path relative
         rel_path=${DIR#"$RELATIVE_PATH/"}
-        echo -e "\e[1;32m$rel_path$file\e[0m"
-        echo =============
+        echo -e "\e[1;4;32m$rel_path$file\e[0m"
         cat "$file" | grep --color="always" --line-number $@ "TODO"
 		echo
     fi
