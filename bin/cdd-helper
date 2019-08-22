@@ -129,6 +129,11 @@ class Parser:
                   file=sys.stderr)
             exit(1)
 
+        if directory == '.':
+            directory = os.getcwd()
+        elif directory == '..':
+            directory = os.path.dirname(os.getcwd())
+
         self._data[name] = directory
 
         # Write all the data to the json file again

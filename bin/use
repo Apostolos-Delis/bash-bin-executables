@@ -53,7 +53,7 @@ if [ "$#" -ge "1" ]; then
     elif [ "$1" = '-p' ] || [ "$1" = '--percent' ]; then
         total=`history | wc -l`
         shift
-        num_executed=`history | awk '{$1=""}1' | awk '{$1=$1}1' | grep -e -c "$@"`
+        num_executed=`history | awk '{$1=""}1' | awk '{$1=$1}1' | grep -c -e "$@"`
         bc <<< "scale = 3; ($num_executed / $total)"
 
     elif [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
