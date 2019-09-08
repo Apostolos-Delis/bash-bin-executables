@@ -53,9 +53,8 @@ elif [ ! -e "$2" ]; then
     exit
 fi
 
-cat "$1" > ".TMP_SWP_FILE.tmp"
-cat "$2" > "$1"
-cat ".TMP_SWP_FILE.tmp" > "$2"
+mv "$1" ".TMP_SWP_FILE.tmp"
+mv "$2" "$1"
+mv ".TMP_SWP_FILE.tmp" "$2"
 
 rm -f ".TMP_SWP_FILE.tmp"
-
