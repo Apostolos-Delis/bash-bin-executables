@@ -39,11 +39,9 @@ fi
 BRANCH=$(git symbolic-ref --short -q HEAD)
 
 git add --all
-echo "git commit -a $@"
 git commit --all "$@"
 if [ "$BRANCH" == 'master' ]; 
 then
-    echo "YEET"
     git push origin master
 else
     git push --set-upstream origin $BRANCH 
