@@ -2,19 +2,19 @@
 
 # This file is a part of the Bash-bin-executables project
 # https://github.com/Apostolos-Delis/bash-bin-executables/
-# 
+#
 # Copyright (c) 2018 Apostolos Delis
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -69,6 +69,11 @@ create_bash_file(){
     echo >> $1
 }
 
+create_ruby_file(){
+    echo "#!/usr/bin/env ruby" >> $1
+    echo >> $1
+}
+
 create_nodejs_file(){
     echo "#!/usr/bin/env node" > $1
     echo >> $1
@@ -82,9 +87,10 @@ USAGE: cf [OPTIONS] <FILE>
 Options:
     --version           Show the version of cf
     -h, --help          Show this help message
-    -p, --python        Process FILE with python installations
+    -p, --python        Process FILE with Python installations
     -c, --c-basics      Process FILE with C language basics
     -C, --cpp           Process FILE with C++ language basics
+    -r, --ruby          Process FILE with Ruby language basics
     -j, --node-js       Process FILE with node.js language basics
     -b, --bash          Process FILE with Bash language basics
     -x, --non-exec      Don't make the file executable"
@@ -95,6 +101,7 @@ Options:
 VERSION="1.2"
 
 PYTHON=false
+RUBY=false
 CPP=false
 C=false
 BASH=false
@@ -111,25 +118,25 @@ fi
 
 
 while test $# -gt 0
-do 
-    case "$1" in 
+do
+    case "$1" in
         -h|--help)
             help_message
             ;;
         -p|--python)
             if [ language = true ]
             then
-                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -r, -b -j, or -C options"
                 exit -1
             fi
             PYTHON=true
             language=true
-            shift 
+            shift
             ;;
         -c|--c-basics)
             if [ language = true ]
             then
-                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -r, -b -j, or -C options"
                 exit -1
             fi
             C=true
@@ -139,26 +146,36 @@ do
         -C|--cpp)
             if [ language = true ]
             then
-                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -r, -b -j, or -C options"
                 exit -1
             fi
             CPP=true
             language=true
-            shift 
+            shift
             ;;
         -b|--bash)
             if [ language = true ]
             then
-                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -r, -b -j, or -C options"
                 exit -1
             fi
             BASH=true
-            shift 
+            shift
+            ;;
+        -r|--ruby)
+            if [ language = true ]
+            then
+                errormsg "ERROR: can only have one of -c, -p, -r, -b -j, or -C options"
+                exit -1
+            fi
+            RUBY=true
+            language=true
+            shift
             ;;
         -j|--node-js)
             if [ language = true ]
             then
-                errormsg "ERROR: can only have one of -c, -p, -b -j, or -C options"
+                errormsg "ERROR: can only have one of -c, -p, -r, -b -j, or -C options"
                 exit -1
             fi
             NODE_JS=true
@@ -177,7 +194,7 @@ do
             FILES=$@
             break
             ;;
-    esac 
+    esac
 done
 
 
@@ -204,6 +221,11 @@ do
     if [ $PYTHON = true ]
     then
         create_py_file $FILE
+    fi
+
+    if [ $RUBY = true ]
+    then
+        create_ruby_file $FILE
     fi
 
     if [ $BASH = true ]
