@@ -40,6 +40,11 @@ BRANCH=$(git symbolic-ref --short -q HEAD)
 
 git add --all
 git commit --all "$@"
+if [ $? -ne 0 ]; then
+    git reset
+    exit 1
+fi
+
 if [ "$BRANCH" == 'master' ] || [ "$BRANCH" == 'main' ]
 then
     git push origin $BRANCH
