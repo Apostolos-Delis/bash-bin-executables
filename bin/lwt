@@ -16,8 +16,7 @@ Options:
 
 Examples:
   lwt apostolosdelis/mrtg-91-fix-rspec-ci-build-failures
-  lwt apostolosdelis/mrtg-91-fix-ci --agents "api ui" --parent ../worktrees
-  lwt apostolosdelis/mrtg-91-fix-ci --base origin/develop
+  lwt apostolosdelis/mrtg-91-fix-ci --agents "api ui"
   lwt --clear
 
 BRANCH_NAME is the branch name from Linear (copy with "Copy git branch name").
@@ -143,13 +142,13 @@ if [[ -z "$BASE" ]]; then
   fi
 fi
 
-echo "Repo:      $REPO_NAME"
-echo "Branch:    $BRANCH"
-echo "Ticket:    $TICKET"
-echo "Base:      $BASE"
-echo "Agents:    $AGENTS"
-echo "Parent:    $PARENT"
-echo
+echo "Repo:      $REPO_NAME" >&2
+echo "Branch:    $BRANCH" >&2
+echo "Ticket:    $TICKET" >&2
+echo "Base:      $BASE" >&2
+echo "Agents:    $AGENTS" >&2
+echo "Parent:    $PARENT" >&2
+echo >&2
 
 # Update refs (safe even if offline)
 git fetch origin --prune >/dev/null 2>&1 || true
@@ -161,13 +160,13 @@ mkdir -p "$PARENT"
 INTEG_DIR="${PARENT}/${REPO_NAME}-${TICKET}"
 
 if [[ -e "$INTEG_DIR" ]]; then
-  echo "Skip (dir exists): $INTEG_DIR"
+  echo "Skip (dir exists): $INTEG_DIR" >&2
 else
   if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
-    echo "Adding worktree: $INTEG_DIR  (branch exists: $BRANCH)"
+    echo "Adding worktree: $INTEG_DIR  (branch exists: $BRANCH)" >&2
     git worktree add "$INTEG_DIR" "$BRANCH" >/dev/null
   else
-    echo "Adding worktree: $INTEG_DIR  (new branch: $BRANCH from $BASE)"
+    echo "Adding worktree: $INTEG_DIR  (new branch: $BRANCH from $BASE)" >&2
     git worktree add -b "$BRANCH" "$INTEG_DIR" "$BASE" >/dev/null
   fi
 fi
@@ -178,22 +177,22 @@ for agent in $AGENTS; do
   wt_dir="${PARENT}/${REPO_NAME}-${TICKET}-${agent}"
 
   if [[ -e "$wt_dir" ]]; then
-    echo "Skip (dir exists): $wt_dir"
+    echo "Skip (dir exists): $wt_dir" >&2
     continue
   fi
 
   if git show-ref --verify --quiet "refs/heads/${agent_branch}"; then
-    echo "Adding worktree: $wt_dir  (branch exists: $agent_branch)"
+    echo "Adding worktree: $wt_dir  (branch exists: $agent_branch)" >&2
     git worktree add "$wt_dir" "$agent_branch" >/dev/null
   else
-    echo "Adding worktree: $wt_dir  (new branch: $agent_branch from $BRANCH)"
+    echo "Adding worktree: $wt_dir  (new branch: $agent_branch from $BRANCH)" >&2
     git worktree add -b "$agent_branch" "$wt_dir" "$BRANCH" >/dev/null
   fi
 done
 
-echo
-echo "Worktrees:"
-git worktree list
-echo
-echo "Next steps:"
-echo "  cd $INTEG_DIR"
+echo >&2
+echo "Worktrees:" >&2
+git worktree list >&2
+
+# Output absolute path to stdout for cd $(lwt ...)
+cd "$INTEG_DIR" && pwd
