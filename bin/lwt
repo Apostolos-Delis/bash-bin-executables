@@ -1,0 +1,186 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage:
+  lwt BRANCH_NAME [--agents "api ui tests"] [--base origin/main] [--parent ..]
+  lwt --cleanup BRANCH_NAME
+
+Options:
+  --agents    Space-separated list of agent worktrees (default: none)
+  --base      Base branch for new branches (default: auto-detect origin/main or master)
+  --parent    Parent directory for worktrees (default: "..")
+  --cleanup   Remove all worktrees and branches for the given branch
+  -h, --help  Show this help message
+
+Examples:
+  lwt apostolosdelis/mrtg-91-fix-rspec-ci-build-failures
+  lwt apostolosdelis/mrtg-91-fix-ci --agents "api ui" --parent ../worktrees
+  lwt apostolosdelis/mrtg-91-fix-ci --base origin/develop
+  lwt --cleanup apostolosdelis/mrtg-91-fix-ci
+
+BRANCH_NAME is the branch name from Linear (copy with "Copy git branch name").
+
+Behavior:
+  - Creates/switches current worktree to the integration branch
+  - Creates worktrees for each agent with branches:
+      <branch>-<agent>  (e.g. apostolosdelis/mrtg-91-fix-ci-api)
+  - Worktree dirs are siblings by default:
+      <parent>/<repo>-<ticket>-<agent>  (e.g. ../myrepo-mrtg-91-api)
+EOF
+}
+
+# Handle help before positional args
+case "${1:-}" in
+  -h|--help) usage; exit 0 ;;
+esac
+
+BRANCH=""
+AGENTS=""
+BASE=""
+PARENT=".."
+CLEANUP=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --agents)  AGENTS="${2:-}"; shift 2 ;;
+    --base)    BASE="${2:-}"; shift 2 ;;
+    --parent)  PARENT="${2:-}"; shift 2 ;;
+    --cleanup) CLEANUP=true; shift ;;
+    -h|--help) usage; exit 0 ;;
+    -*)
+      echo "Unknown arg: $1" >&2
+      usage
+      exit 1
+      ;;
+    *)
+      BRANCH="$1"; shift ;;
+  esac
+done
+
+if [[ -z "$BRANCH" ]]; then
+  echo "Missing BRANCH_NAME" >&2
+  usage
+  exit 1
+fi
+
+# Ensure we're in a git repo
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$ROOT" ]]; then
+  echo "Not inside a git repository." >&2
+  exit 1
+fi
+cd "$ROOT"
+
+REPO_NAME="$(basename "$ROOT")"
+
+# Extract ticket ID from branch name (e.g. "mrtg-91" from "apostolosdelis/mrtg-91-fix-ci")
+# Pattern: after the slash, grab project-number before the next dash
+AFTER_SLASH="${BRANCH#*/}"
+if [[ "$AFTER_SLASH" =~ ^([a-zA-Z]+-[0-9]+) ]]; then
+  TICKET="${BASH_REMATCH[1]}"
+else
+  TICKET="$AFTER_SLASH"
+fi
+
+# Handle cleanup mode
+if [[ "$CLEANUP" == true ]]; then
+  echo "Cleaning up worktrees and branches for: $BRANCH"
+  echo
+
+  # Find and remove all worktrees for agent branches
+  while IFS= read -r line; do
+    wt_path=$(echo "$line" | awk '{print $1}')
+    wt_branch=$(echo "$line" | sed -n 's/.*\[\(.*\)\].*/\1/p')
+
+    if [[ "$wt_branch" == "$BRANCH"-* ]]; then
+      echo "Removing worktree: $wt_path ($wt_branch)"
+      git worktree remove --force "$wt_path" 2>/dev/null || true
+    fi
+  done < <(git worktree list)
+
+  # Delete agent branches
+  while IFS= read -r agent_branch; do
+    if [[ -n "$agent_branch" ]]; then
+      echo "Deleting branch: $agent_branch"
+      git branch -D "$agent_branch" 2>/dev/null || true
+    fi
+  done < <(git branch --list "${BRANCH}-*" | sed 's/^[* ]*//')
+
+  # Switch away from integration branch if on it, then delete
+  CURRENT=$(git branch --show-current)
+  if [[ "$CURRENT" == "$BRANCH" ]]; then
+    DEFAULT_BRANCH=$(git symbolic-ref -q refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||' || echo "main")
+    echo "Switching to $DEFAULT_BRANCH"
+    git switch "$DEFAULT_BRANCH" 2>/dev/null || git switch main 2>/dev/null || git switch master 2>/dev/null
+  fi
+
+  if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
+    echo "Deleting branch: $BRANCH"
+    git branch -D "$BRANCH" 2>/dev/null || true
+  fi
+
+  git worktree prune
+  echo
+  echo "Cleanup complete."
+  exit 0
+fi
+
+# Determine default base if not provided
+if [[ -z "$BASE" ]]; then
+  if ORIGIN_HEAD_REF="$(git symbolic-ref -q refs/remotes/origin/HEAD 2>/dev/null)"; then
+    BASE="origin/${ORIGIN_HEAD_REF#refs/remotes/origin/}"
+  elif git show-ref --verify --quiet refs/remotes/origin/main; then
+    BASE="origin/main"
+  elif git show-ref --verify --quiet refs/remotes/origin/master; then
+    BASE="origin/master"
+  else
+    BASE="HEAD"
+  fi
+fi
+
+echo "Repo:      $REPO_NAME"
+echo "Branch:    $BRANCH"
+echo "Ticket:    $TICKET"
+echo "Base:      $BASE"
+echo "Agents:    $AGENTS"
+echo "Parent:    $PARENT"
+echo
+
+# Update refs (safe even if offline)
+git fetch origin --prune >/dev/null 2>&1 || true
+
+# Create/switch current worktree to integration branch
+if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
+  git switch "$BRANCH" >/dev/null
+else
+  git switch -c "$BRANCH" "$BASE" >/dev/null
+fi
+
+# Create agent worktrees
+for agent in $AGENTS; do
+  agent_branch="${BRANCH}-${agent}"
+  wt_dir="${PARENT}/${REPO_NAME}-${TICKET}-${agent}"
+
+  if [[ -e "$wt_dir" ]]; then
+    echo "Skip (dir exists): $wt_dir"
+    continue
+  fi
+
+  if git show-ref --verify --quiet "refs/heads/${agent_branch}"; then
+    echo "Adding worktree: $wt_dir  (branch exists: $agent_branch)"
+    git worktree add "$wt_dir" "$agent_branch" >/dev/null
+  else
+    echo "Adding worktree: $wt_dir  (new branch: $agent_branch from $BRANCH)"
+    git worktree add -b "$agent_branch" "$wt_dir" "$BRANCH" >/dev/null
+  fi
+done
+
+echo
+echo "Worktrees:"
+git worktree list
+echo
+echo "Next steps:"
+echo "  - Integration branch checked out in: $ROOT"
+echo "  - Run Claude in each agent worktree dir above."
