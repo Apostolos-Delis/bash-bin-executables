@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+port="${1:-}"
+
+if [[ -z "$port" ]]; then
+  echo "usage: killp <port>"
+  exit 1
+fi
+
+if ! [[ "$port" =~ ^[0-9]+$ ]]; then
+  echo "error: port must be a number"
+  exit 1
+fi
+
+pids="$(lsof -tiTCP:"$port" -sTCP:LISTEN || true)"
+
+if [[ -z "$pids" ]]; then
+  echo "Nothing listening on port $port"
+  exit 0
+fi
+
+echo "Killing listener(s) on port $port: $pids"
+
+if ! kill $pids 2>/dev/null; then
+  sudo kill $pids
+fi
+
+sleep 0.3
+
+remaining="$(lsof -tiTCP:"$port" -sTCP:LISTEN || true)"
+if [[ -n "$remaining" ]]; then
+  echo "Still running, force killing: $remaining"
+  if ! kill -9 $remaining 2>/dev/null; then
+    sudo kill -9 $remaining
+  fi
+fi
+
+sleep 0.2
+
+final="$(lsof -tiTCP:"$port" -sTCP:LISTEN || true)"
+if [[ -n "$final" ]]; then
+  echo "Port $port is still occupied by: $final"
+  exit 1
+fi
+
+echo "Port $port is free"
